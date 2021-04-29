@@ -1,0 +1,81 @@
+/* estilos genéricos */
+.cinza-20{
+    background-color: #ccc;
+}
+.cinza-40{
+    background-color: #999;
+}
+.cinza-60{
+    background-color: #666;
+}
+.cinza-80{
+    background-color: #333;
+}
+
+.card-body{
+    padding: 3px;
+}
+.cinza-21{
+    background-color: #333;
+}
+.cinza-41{
+    background-color: #666;
+}
+.cinza-61{
+    background-color: #333;
+}
+
+.card-1{
+    padding: 15px;
+}
+
+.sombra-caixa{
+    box-shadow: 0px 1px 20px #ccc;
+}
+
+.miniatura{
+    /* comportamento inline-block que continua semelhante
+    a texto porém reconhece margens e dimensões */
+    display: inline-block;
+    margin: 5px;
+}
+.miniatura img{
+    width: 150px;
+}
+
+
+
+/* estilos para o carousel */
+.carousel-caption h3, .carousel-caption p{
+    text-shadow: 3px 3px 5px #000;
+}
+.carousel-caption{
+    background-color: rgba(0, 0, 0, 0.4);
+}
+/* estilos para as sessoes */
+.titulos{
+    width: fit-content;
+    border-bottom: 7px #666 solid;
+    margin: 0 auto;
+}
+
+/* Estilo para a seta-sobe */
+.seta-sobe{
+    padding: 20px;
+    border-radius: 10px;
+    background-color: rgba(0, 0, 0, 0.6);
+    color: white;
+    padding-top: 18px;
+    padding-bottom: 10px;
+    padding-left: 20px;
+    padding-right: 20px;
+    position: fixed;
+    bottom: 10px;
+    right: 10px;
+    cursor: pointer;
+    display: none;
+}
+
+footer{
+    background-color: #ccc;
+}
