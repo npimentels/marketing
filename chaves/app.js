@@ -548,8 +548,17 @@
     return { bytes: bytes, name: name };
   }
 
+  // Ponte com o app Android (quando o app roda dentro do APK)
+  var native = window.AndroidApp || null;
+  function toBase64(bytes) {
+    var bin = '';
+    for (var i = 0; i < bytes.length; i += 0x8000) bin += String.fromCharCode.apply(null, bytes.subarray(i, i + 0x8000));
+    return btoa(bin);
+  }
+
   function downloadPdf() {
     var r = buildPdf();
+    if (native) { native.saveFile(toBase64(r.bytes), r.name, 'application/pdf'); return; }
     var blob = new Blob([r.bytes], { type: 'application/pdf' });
     var url = URL.createObjectURL(blob);
     var a = h('a', { href: url, download: r.name });
@@ -560,6 +569,7 @@
 
   function sharePdf() {
     var r = buildPdf();
+    if (native) { native.shareFile(toBase64(r.bytes), r.name, 'application/pdf'); return; }
     var file;
     try { file = new File([r.bytes], r.name, { type: 'application/pdf' }); } catch (e) { file = null; }
     if (file && navigator.canShare && navigator.canShare({ files: [file] })) {
@@ -572,6 +582,11 @@
 
   // ---------------- Backup ----------------
   function exportData() {
+    if (native) {
+      var bytes = new TextEncoder().encode(JSON.stringify(state, null, 2));
+      native.saveFile(toBase64(bytes), 'backup-chaves-' + todayStr() + '.json', 'application/json');
+      return;
+    }
     var blob = new Blob([JSON.stringify(state, null, 2)], { type: 'application/json' });
     var url = URL.createObjectURL(blob);
     var a = h('a', { href: url, download: 'backup-chaves-' + todayStr() + '.json' });
@@ -647,6 +662,13 @@
   if ('serviceWorker' in navigator && location.protocol !== 'file:') {
     navigator.serviceWorker.register('sw.js').catch(function () {});
   }
+
+  // Botão "voltar" do Android: fecha o formulário ou volta para a primeira aba
+  window.__back = function () {
+    if (!$('sheet').classList.contains('hidden')) { closeForm(); return true; }
+    if (ui.view !== 'movs') { ui.view = 'movs'; render(); return true; }
+    return false;
+  };
 
   render();
 })();
