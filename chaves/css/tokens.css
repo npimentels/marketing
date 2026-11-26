@@ -1,0 +1,79 @@
+/* =========================================================
+   Tokens de tema — o ÚNICO lugar com valores de cor, fonte,
+   espaçamento e raio. Os outros arquivos usam só var(--...).
+   ========================================================= */
+:root {
+  /* Cores */
+  --c-bg: #F6F6F4;
+  --c-surface: #FFFFFF;
+  --c-surface-2: #F0F0ED;
+  --c-text: #111111;
+  --c-muted: #6B6B6B;
+  --c-subtle: #9A9A96;
+  --c-line: #E4E4E0;
+  --c-line-strong: #CFCFCB;
+  --c-primary: #111111;
+  --c-primary-pressed: #2B2B2B;
+  --c-on-primary: #FFFFFF;
+  --c-on-primary-muted: #B5B5B5;
+  --c-alert: #C8102E;
+  --c-alert-soft: #FDECEE;
+  --c-on-alert-muted: #FFD5DB;
+  --c-ok: #1F7A4D;
+  --c-ok-soft: #E7F3EC;
+  --c-ok-on-dark: #9FE3BD;
+  --c-backdrop: rgba(0, 0, 0, .45);
+
+  /* Tipografia */
+  --font: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --fs-2xs: 11px;
+  --fs-xs: 12px;
+  --fs-sm: 14px;
+  --fs-md: 16px;
+  --fs-lg: 20px;
+  --fs-xl: 28px;
+  --fw-regular: 400;
+  --fw-semibold: 600;
+  --fw-bold: 700;
+  --fw-heavy: 800;
+  --tracking-caps: .08em;
+
+  /* Espaçamento (múltiplos de 4) */
+  --sp-1: 4px;
+  --sp-2: 8px;
+  --sp-3: 12px;
+  --sp-4: 16px;
+  --sp-5: 20px;
+  --sp-6: 24px;
+  --sp-8: 32px;
+
+  /* Raios */
+  --r-sm: 8px;
+  --r-md: 12px;
+  --r-lg: 18px;
+  --r-xl: 24px;
+  --r-pill: 999px;
+
+  /* Sombras */
+  --shadow-1: 0 1px 2px rgba(0, 0, 0, .04);
+  --shadow-2: 0 10px 24px rgba(0, 0, 0, .22);
+
+  /* Medidas */
+  --touch: 44px;
+  --content-max: 640px;
+  --tabbar-h: 64px;
+  --cta-h: 56px;
+  --safe-t: env(safe-area-inset-top, 0px);
+  --safe-b: env(safe-area-inset-bottom, 0px);
+
+  /* Movimento */
+  --t-fast: .15s ease-out;
+  --t-sheet: .22s cubic-bezier(.2, .8, .2, 1);
+
+  /* Camadas */
+  --z-tabbar: 10;
+  --z-cta: 11;
+  --z-sheet: 40;
+  --z-dialog: 50;
+  --z-toast: 60;
+}

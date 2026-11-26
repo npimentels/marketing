@@ -1,0 +1,52 @@
+/* Estrutura da aplicação: tela, cabeçalho, barra de abas e botão principal */
+.screen {
+  max-width: var(--content-max);
+  margin: 0 auto;
+  padding: calc(var(--safe-t) + var(--sp-5)) var(--sp-4) calc(var(--tabbar-h) + var(--safe-b) + var(--sp-6));
+}
+.screen.has-cta { padding-bottom: calc(var(--tabbar-h) + var(--safe-b) + var(--cta-h) + var(--sp-8)); }
+
+.stack { display: flex; flex-direction: column; gap: var(--sp-3); }
+.stack--lg { gap: var(--sp-4); }
+.row { display: flex; align-items: center; gap: var(--sp-2); }
+.row--between { justify-content: space-between; }
+.grow { flex: 1; min-width: 0; }
+
+/* Cabeçalho de cada tela */
+.app-header {
+  display: flex; align-items: flex-end; justify-content: space-between; gap: var(--sp-3);
+  margin-bottom: var(--sp-4);
+}
+.app-header__text { min-width: 0; }
+.app-header__eyebrow {
+  font-size: var(--fs-xs); font-weight: var(--fw-semibold); color: var(--c-muted);
+  text-transform: uppercase; letter-spacing: var(--tracking-caps);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.app-header__title { font-size: var(--fs-xl); font-weight: var(--fw-heavy); letter-spacing: -.03em; line-height: 1.15; }
+.app-header__action { flex: none; }
+
+/* Barra de abas */
+.tabbar {
+  position: fixed; left: 0; right: 0; bottom: 0; z-index: var(--z-tabbar);
+  display: flex; justify-content: center;
+  background: var(--c-surface); border-top: 1px solid var(--c-line);
+  padding-bottom: var(--safe-b);
+}
+.tabbar__inner { display: flex; width: 100%; max-width: var(--content-max); height: var(--tabbar-h); }
+.tab {
+  flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px;
+  font-size: var(--fs-2xs); font-weight: var(--fw-semibold); color: var(--c-subtle);
+  transition: color var(--t-fast);
+}
+.tab svg.icon { width: 24px; height: 24px; stroke-width: 1.8; }
+.tab.is-active { color: var(--c-text); }
+.tab.is-active svg.icon { stroke-width: 2.4; }
+
+/* Botão principal fixo acima das abas */
+.cta-bar {
+  position: fixed; left: 0; right: 0; z-index: var(--z-cta);
+  bottom: calc(var(--tabbar-h) + var(--safe-b) + var(--sp-3));
+  display: flex; justify-content: center; padding: 0 var(--sp-4); pointer-events: none;
+}
+.cta-bar > .btn { pointer-events: auto; width: 100%; max-width: calc(var(--content-max) - 2 * var(--sp-4)); box-shadow: var(--shadow-2); }

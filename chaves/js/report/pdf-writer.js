@@ -2,6 +2,7 @@
  * MiniPDF — gerador de PDF simples, sem dependências e que funciona offline.
  * Usa as fontes padrão Helvetica / Helvetica-Bold com codificação WinAnsi
  * (suporta acentos do português). Coordenadas em pontos, origem no topo.
+ * Cores: número (0 = preto ... 1 = branco) ou [r, g, b] de 0 a 1.
  */
 (function (global) {
   'use strict';
@@ -52,6 +53,13 @@
   function esc(s) { return s.replace(/\\/g, '\\\\').replace(/\(/g, '\\(').replace(/\)/g, '\\)'); }
   function n(v) { return (Math.round(v * 100) / 100).toString(); }
 
+  // operador de cor: preenchimento (g/rg) ou traço (G/RG)
+  function color(c, stroke) {
+    if (c == null) c = 0;
+    if (Array.isArray(c)) return n(c[0]) + ' ' + n(c[1]) + ' ' + n(c[2]) + (stroke ? ' RG' : ' rg');
+    return n(c) + (stroke ? ' G' : ' g');
+  }
+
   function MiniPDF(opts) {
     opts = opts || {};
     this.w = opts.width || 595.28;   // A4
@@ -87,8 +95,7 @@
     var tw = rawWidth(s, size, bold);
     if (o.align === 'right') x -= tw;
     else if (o.align === 'center') x -= tw / 2;
-    var gray = o.gray == null ? 0 : o.gray;
-    this.cur.push('BT ' + n(gray) + ' g /' + (bold ? 'F2' : 'F1') + ' ' + n(size) + ' Tf ' +
+    this.cur.push('BT ' + color(o.color) + ' /' + (bold ? 'F2' : 'F1') + ' ' + n(size) + ' Tf ' +
       n(x) + ' ' + n(this.h - y) + ' Td (' + esc(s) + ') Tj ET');
   };
 
@@ -125,7 +132,7 @@
 
   MiniPDF.prototype.line = function (x1, y1, x2, y2, o) {
     o = o || {};
-    this.cur.push(n(o.gray == null ? 0 : o.gray) + ' G ' + n(o.width || 0.5) + ' w ' +
+    this.cur.push(color(o.color, true) + ' ' + n(o.width || 0.5) + ' w ' +
       (o.dash ? '[' + o.dash.join(' ') + '] 0 d ' : '[] 0 d ') +
       n(x1) + ' ' + n(this.h - y1) + ' m ' + n(x2) + ' ' + n(this.h - y2) + ' l S');
   };
@@ -133,9 +140,10 @@
   MiniPDF.prototype.rect = function (x, y, w, h, o) {
     o = o || {};
     var cmd = n(x) + ' ' + n(this.h - y - h) + ' ' + n(w) + ' ' + n(h) + ' re ';
-    if (o.fill != null && o.stroke) cmd = n(o.fill) + ' g ' + n(o.strokeGray || 0) + ' G ' + n(o.width || 0.5) + ' w [] 0 d ' + cmd + 'B';
-    else if (o.fill != null) cmd = n(o.fill) + ' g ' + cmd + 'f';
-    else cmd = n(o.strokeGray || 0) + ' G ' + n(o.width || 0.5) + ' w [] 0 d ' + cmd + 'S';
+    var stroke = color(o.stroke == null ? 0 : o.stroke, true) + ' ' + n(o.width || 0.5) + ' w [] 0 d ';
+    if (o.fill != null && o.stroke != null) cmd = color(o.fill) + ' ' + stroke + cmd + 'B';
+    else if (o.fill != null) cmd = color(o.fill) + ' ' + cmd + 'f';
+    else cmd = stroke + cmd + 'S';
     this.cur.push(cmd);
   };
 
@@ -177,5 +185,5 @@
     return bytes;
   };
 
-  global.MiniPDF = MiniPDF;
+  (global.App = global.App || {}).MiniPDF = MiniPDF;
 })(window);

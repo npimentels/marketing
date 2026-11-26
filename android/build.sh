@@ -14,7 +14,7 @@ B=build
 rm -rf "$B" && mkdir -p "$B/assets/www" "$B/res" "$B/gen" "$B/classes" "$(dirname "$OUT")"
 
 echo "1/7 Copiando o app web"
-cp -r ../chaves/index.html ../chaves/app.css ../chaves/app.js ../chaves/pdf.js ../chaves/icons "$B/assets/www/"
+cp -r ../chaves/index.html ../chaves/css ../chaves/js ../chaves/icons "$B/assets/www/"
 
 echo "2/7 Gerando ícones"
 cp -r res/. "$B/res/"
