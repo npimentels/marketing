@@ -19,7 +19,7 @@
     form: { keys: [], status: 'pendente' }
   };
 
-  function defaultFloors() { return generateFloors(1, 10, 4); }
+  function defaultFloors() { return generateFloors(1, 16, 8); }
 
   function generateFloors(from, to, per) {
     var floors = [];
@@ -34,7 +34,14 @@
   function load() {
     try {
       var s = JSON.parse(localStorage.getItem(STORE_KEY));
-      if (s && s.settings && Array.isArray(s.movs)) return s;
+      if (s && s.settings && Array.isArray(s.movs)) {
+        // quem ainda usa a lista padrão antiga (10 andares x 4) passa para a nova (16 andares x 8)
+        if (JSON.stringify(s.settings.floors) === JSON.stringify(generateFloors(1, 10, 4))) {
+          s.settings.floors = defaultFloors();
+          localStorage.setItem(STORE_KEY, JSON.stringify(s));
+        }
+        return s;
+      }
     } catch (e) { /* ignora */ }
     return { settings: { place: '', floors: defaultFloors(), resp: '' }, movs: [] };
   }

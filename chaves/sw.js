@@ -1,5 +1,5 @@
 // Cache para funcionar offline. Aumente a versão ao publicar mudanças.
-var CACHE = 'chaves-v1';
+var CACHE = 'chaves-v2';
 var FILES = ['./', 'index.html', 'app.css', 'app.js', 'pdf.js', 'manifest.webmanifest',
   'icons/icon.svg', 'icons/icon-180.png', 'icons/icon-192.png', 'icons/icon-512.png'];
 

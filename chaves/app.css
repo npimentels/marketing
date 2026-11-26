@@ -103,7 +103,8 @@ main { padding: 16px 16px calc(var(--tabbar-h) + var(--safe-b) + 90px); max-widt
 .floor { margin-bottom: 16px; }
 .floor-head { display: flex; justify-content: space-between; font-weight: 700; margin-bottom: 8px; font-size: 14px; }
 .floor-head span { color: var(--g3); font-weight: 400; }
-.keys-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(64px, 1fr)); gap: 6px; }
+.keys-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; }
+@media (min-width: 560px) { .keys-grid { grid-template-columns: repeat(8, 1fr); } }
 .kbox {
   border: 1px solid var(--black); background: var(--white); border-radius: 8px;
   padding: 12px 4px; text-align: center; font-weight: 700; font-variant-numeric: tabular-nums;
