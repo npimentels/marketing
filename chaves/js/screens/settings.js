@@ -4,13 +4,13 @@
   var h = App.dom.h, icon = App.dom.icon, D = App.dates;
   var store = App.store, domain = App.domain, storage = App.storage, ui = App.ui, c = App.ui.c, platform = App.platform;
 
-  var APP_VERSION = '2.0';
+  var APP_VERSION = '3.0';
 
   function numberInput(value, min) {
     return h('input', { class: 'input', type: 'number', inputmode: 'numeric', min: String(min), value: String(value) });
   }
 
-  function render(root) {
+  function render(root, ctx) {
     var settings = store.state.settings;
 
     // ---------- Local ----------
@@ -66,9 +66,10 @@
         .then(function (ok) { if (ok) { store.clearMovements(); ui.toast('Retiradas apagadas', { tone: 'ok' }); } });
     }
 
+    var blocks;
     App.dom.append(root, [
-      c.header('Configurações', 'Ajustes'),
-      h('div', { class: 'stack stack--lg' }, [
+      c.header('Configurações', 'Ajustes do', 'app'),
+      h('div', { class: 'stack stack--lg' }, blocks = [
         h('section', { class: 'card stack' }, [
           h('h2', { class: 'card__title', text: 'Local' }),
           c.field('Nome do prédio ou serviço', placeInput, 'Aparece no topo e no relatório.')
@@ -76,12 +77,12 @@
         h('section', { class: 'card stack' }, [
           h('div', null, [
             h('h2', { class: 'card__title', text: 'Andares e apartamentos' }),
-            h('p', { class: 'card__text', text: 'Gere a lista automaticamente ou edite à mão: uma linha por andar, no formato “1º andar: 101, 102”.' })
+            h('p', { class: 'card__text', text: 'Numeração: andar + apartamento (1º andar: 11 a 18 · 10º: 101 a 108 · 16º: 161 a 168). Gere automaticamente ou edite à mão, uma linha por andar: “1º andar: 11, 12”.' })
           ]),
           h('div', { class: 'grid-3' }, [c.field('1º andar', fromIn), c.field('Último', toIn), c.field('Aptos/andar', perIn)]),
           h('button', { class: 'btn btn--secondary btn--block', type: 'button', text: 'Gerar lista', onclick: generate }),
           c.field('Lista de chaves', floorsText),
-          h('button', { class: 'btn btn--primary btn--block', type: 'button', text: 'Salvar lista', onclick: saveFloors })
+          h('button', { class: 'btn btn--accent btn--block', type: 'button', text: 'Salvar lista', onclick: saveFloors })
         ]),
         h('section', { class: 'card stack' }, [
           h('div', null, [
@@ -101,8 +102,9 @@
         h('p', { class: 'footnote', text: 'Controle de Chaves · versão ' + APP_VERSION })
       ])
     ]);
+    if (ctx.mode !== 'update') App.motion.stagger(blocks, 'anim-rise');
   }
 
   App.screens = App.screens || {};
-  App.screens.settings = { render: render, hasCta: false };
+  App.screens.settings = { render: render };
 })(window.App = window.App || {});

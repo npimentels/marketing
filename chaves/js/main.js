@@ -1,31 +1,48 @@
 /* =========================================================
-   Inicialização: estado da navegação, abas, botão principal,
-   botão "voltar" do Android e atualização automática.
+   Inicialização: navegação entre abas (com transição),
+   botão central "+", botão "voltar" do Android e atualização
+   automática a cada minuto.
    ========================================================= */
 (function (App) {
   'use strict';
-  var $ = App.dom.$, clear = App.dom.clear, D = App.dates, ui = App.ui, store = App.store;
+  var $ = App.dom.$, clear = App.dom.clear, D = App.dates, ui = App.ui, store = App.store, motion = App.motion;
+
+  var TAB_ORDER = ['home', 'board', 'report', 'settings'];
 
   /** Estado da interface (não é gravado) */
   var view = {
     name: 'home',
     date: D.today(),
     homeFilter: 'open',
+    homeMode: 'people',
     search: '',
     showReturned: false,
     boardOnlyOut: false,
+    reportMonth: null,
     reportOlder: true
   };
 
-  var ctx = { view: view, rerender: render, go: go };
+  /**
+   * ctx.mode diz às telas como animar:
+   *  'nav'    — chegou trocando de aba (desliza + cascata + contadores do zero)
+   *  'swap'   — mesma tela, conteúdo trocado (cascata)
+   *  'update' — dados mudaram (só reposiciona suavemente, sem piscar)
+   */
+  var ctx = { view: view, mode: 'nav', rerender: function (mode) { render(mode || 'swap'); }, go: go };
 
-  function render() {
-    var screen = App.screens[view.name];
+  function draw(root) { clear(root); App.screens[view.name].render(root, ctx); }
+
+  function render(mode, direction) {
     var root = $('screen');
-    clear(root);
-    screen.render(root, ctx);
-    root.classList.toggle('has-cta', !!screen.hasCta);
-    $('cta').classList.toggle('is-hidden', !screen.hasCta);
+    ctx.mode = mode || 'update';
+    if (ctx.mode === 'update') motion.flip(root, function () { draw(root); });
+    else draw(root);
+
+    root.classList.remove('enter-left', 'enter-right');
+    if (ctx.mode === 'nav' && direction && !motion.reduced) {
+      void root.offsetWidth;
+      root.classList.add(direction > 0 ? 'enter-right' : 'enter-left');
+    }
     document.querySelectorAll('.tab').forEach(function (t) {
       var active = t.dataset.view === view.name;
       t.classList.toggle('is-active', active);
@@ -34,10 +51,12 @@
   }
 
   function go(name) {
-    if (view.name === name) return;
+    if (view.name === name) { window.scrollTo({ top: 0, behavior: 'smooth' }); return; }
+    var dir = TAB_ORDER.indexOf(name) - TAB_ORDER.indexOf(view.name);
     view.name = name;
-    render();
-    window.scrollTo(0, 0);
+    window.scrollTo({ top: 0, behavior: 'instant' });
+    render('nav', dir);
+    ui.vibrate(6);
   }
 
   function isTyping() {
@@ -49,9 +68,9 @@
   document.querySelectorAll('.tab').forEach(function (t) {
     t.addEventListener('click', function () { go(t.dataset.view); });
   });
-  $('cta').addEventListener('click', function () { App.sheets.checkout(); });
+  $('fab').addEventListener('click', function () { App.sheets.checkout(); });
 
-  store.subscribe(function () { render(); });
+  store.subscribe(function () { render('update'); });
   store.onSaveError = function () { ui.toast('Não foi possível salvar no aparelho', { tone: 'error' }); };
 
   /** Botão "voltar" do Android (chamado pelo APK): true = tratado aqui */
@@ -66,12 +85,12 @@
   setInterval(function () {
     var t = D.today();
     if (t !== lastToday) { if (view.date === lastToday) view.date = t; lastToday = t; }
-    if (!ui.hasOpen() && !isTyping()) render();
+    if (!ui.hasOpen() && !isTyping()) render('update');
   }, 60000);
 
   if ('serviceWorker' in navigator && location.protocol.indexOf('http') === 0) {
     navigator.serviceWorker.register('sw.js').catch(function () {});
   }
 
-  render();
+  render('nav');
 })(window.App = window.App || {});

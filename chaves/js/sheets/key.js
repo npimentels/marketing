@@ -30,12 +30,12 @@
     var now = new Date();
 
     var top = holder
-      ? h('div', { class: 'card stack' }, [
+      ? h('div', { class: 'holder-card' + (domain.status(holder, now) === 'atrasada' ? ' is-late' : '') }, [
           h('div', { class: 'person' }, [
             c.avatar(holder),
             h('div', { class: 'grow' }, [
               h('div', { class: 'mov-card__name', text: holder.name }),
-              h('div', { class: 'person__sub', text: (holder.role ? holder.role + ' · ' : '') + 'retirou ' + D.when(holder.createdAt) })
+              h('div', { class: 'person__sub', text: (holder.role ? holder.role + ' · ' : '') + c.statusText(holder, now).toLowerCase() })
             ]),
             c.statusBadge(holder, now)
           ]),
@@ -48,12 +48,12 @@
 
     sheet.setBody([
       top,
-      h('section', { class: 'stack' }, [h('span', { class: 'field__label', text: 'Últimas retiradas' }), historyRows(key, sheet)])
+      h('section', { class: 'step' }, [h('span', { class: 'step-title__label', text: 'Últimas retiradas' }), historyRows(key, sheet)])
     ]);
     sheet.setFoot([holder
-      ? h('button', { class: 'btn btn--primary btn--lg btn--block', type: 'button', text: 'Devolver chave ' + key,
+      ? h('button', { class: 'btn btn--accent btn--lg btn--block', type: 'button', text: 'Devolver chave ' + key,
           onclick: function () { App.actions.returnKeys(holder, [key]); sheet.close(); } })
-      : h('button', { class: 'btn btn--primary btn--lg btn--block', type: 'button', text: 'Registrar retirada desta chave',
+      : h('button', { class: 'btn btn--accent btn--lg btn--block', type: 'button', text: 'Registrar retirada desta chave',
           onclick: function () { sheet.close(); App.sheets.checkout({ presetKeys: [key] }); } })
     ]);
   }

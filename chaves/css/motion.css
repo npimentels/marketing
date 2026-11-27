@@ -1,0 +1,27 @@
+/* =========================================================
+   Animações. Só transform e opacity (rodam na GPU = fluidas).
+   As classes são aplicadas por js/ui/motion.js.
+   ========================================================= */
+@keyframes fade-in { from { opacity: 0; } }
+@keyframes rise-in { from { opacity: 0; transform: translateY(18px) scale(.97); } }
+@keyframes pop-in { from { opacity: 0; transform: scale(.9); } }
+@keyframes screen-from-right { from { opacity: 0; transform: translateX(28px); } }
+@keyframes screen-from-left { from { opacity: 0; transform: translateX(-28px); } }
+@keyframes pulse-dot { 0%, 100% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.7); opacity: .45; } }
+@keyframes tile-pop { 0% { transform: scale(.82); } 60% { transform: scale(1.08); } 100% { transform: scale(1); } }
+@keyframes shake { 20%, 60% { transform: translateX(-5px); } 40%, 80% { transform: translateX(5px); } }
+
+/* Entrada de tela ao trocar de aba */
+.screen.enter-right { animation: screen-from-right .42s var(--ease-out) both; }
+.screen.enter-left { animation: screen-from-left .42s var(--ease-out) both; }
+
+/* Entrada em cascata dos blocos (--i = posição) */
+.anim-rise { animation: rise-in .55s var(--ease-out) both; animation-delay: calc(var(--i, 0) * 45ms); }
+.anim-pop { animation: pop-in .45s var(--ease-spring) both; animation-delay: calc(var(--i, 0) * 18ms); }
+.anim-tile { animation: tile-pop .5s var(--ease-spring); }
+.anim-shake { animation: shake .4s var(--ease-out); }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: .01ms !important; animation-delay: 0ms !important; transition-duration: .01ms !important; }
+  html { scroll-behavior: auto; }
+}

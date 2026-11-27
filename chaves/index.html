@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <meta name="theme-color" content="#F6F6F4">
+  <meta name="theme-color" content="#F4F6F6">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
@@ -13,30 +13,33 @@
   <link rel="icon" href="icons/icon.svg" type="image/svg+xml">
   <link rel="apple-touch-icon" href="icons/icon-180.png">
 
-  <!-- Estilos: tokens de tema -> base -> estrutura -> componentes -->
+  <!-- Estilos: fonte -> tokens de tema -> base -> estrutura -> componentes -> animações -->
+  <link rel="stylesheet" href="css/fonts.css">
   <link rel="stylesheet" href="css/tokens.css">
   <link rel="stylesheet" href="css/base.css">
   <link rel="stylesheet" href="css/layout.css">
   <link rel="stylesheet" href="css/components.css">
+  <link rel="stylesheet" href="css/motion.css">
 </head>
 <body>
   <!-- Cada tela é desenhada aqui por js/screens/*.js -->
   <main class="screen" id="screen"></main>
 
-  <div class="cta-bar">
-    <button class="btn btn--primary btn--lg" id="cta" type="button">+ Registrar retirada</button>
-  </div>
-
   <nav class="tabbar" aria-label="Seções">
     <div class="tabbar__inner">
       <button class="tab" type="button" data-view="home">
-        <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h10"/></svg>Início
+        <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="2"/><rect x="14" y="3" width="7" height="7" rx="2"/><rect x="3" y="14" width="7" height="7" rx="2"/><rect x="14" y="14" width="7" height="7" rx="2"/></svg>Início
       </button>
       <button class="tab" type="button" data-view="board">
-        <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>Quadro
+        <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="8" cy="15" r="4"/><path d="M11 12l9-9M17 6l3 3M15 8l2 2"/></svg>Quadro
       </button>
+      <div class="fab-slot">
+        <button class="fab" id="fab" type="button" aria-label="Registrar retirada">
+          <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>
+        </button>
+      </div>
       <button class="tab" type="button" data-view="report">
-        <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 2h9l5 5v15H6z"/><path d="M14 2v6h6M9 13h8M9 17h8"/></svg>Relatório
+        <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>Relatório
       </button>
       <button class="tab" type="button" data-view="settings">
         <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M4.9 19.1L7 17M17 7l2.1-2.1"/></svg>Ajustes
@@ -52,6 +55,7 @@
   <!-- Interface -->
   <script src="js/ui/dom.js"></script>
   <script src="js/ui/overlays.js"></script>
+  <script src="js/ui/motion.js"></script>
   <script src="js/ui/components.js"></script>
   <!-- Relatório PDF e integração com o aparelho -->
   <script src="js/report/pdf-writer.js"></script>

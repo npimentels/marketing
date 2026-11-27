@@ -24,6 +24,42 @@
 
   document.addEventListener('keydown', function (e) { if (e.key === 'Escape') closeTop(); });
 
+  // ---------- Arrastar para baixo para fechar ----------
+  function enableDragToClose(root, panel, backdrop, handles, close) {
+    var startY = 0, dy = 0, lastY = 0, lastT = 0, velocity = 0, dragging = false;
+
+    function onDown(e) {
+      if (e.button > 0 || (e.target.closest && e.target.closest('button'))) return;
+      dragging = true; startY = lastY = e.clientY; lastT = performance.now(); dy = 0; velocity = 0;
+      root.classList.add('is-dragging');
+      e.currentTarget.setPointerCapture(e.pointerId);
+    }
+    function onMove(e) {
+      if (!dragging) return;
+      var raw = e.clientY - startY;
+      dy = raw > 0 ? raw : raw * 0.25;                       // resistência para cima
+      var now = performance.now();
+      velocity = (e.clientY - lastY) / Math.max(1, now - lastT);
+      lastY = e.clientY; lastT = now;
+      panel.style.transform = 'translateY(' + dy + 'px)';
+      backdrop.style.opacity = String(Math.max(0, 1 - Math.max(0, dy) / panel.offsetHeight));
+    }
+    function onUp() {
+      if (!dragging) return;
+      dragging = false;
+      root.classList.remove('is-dragging');
+      panel.style.transform = '';
+      backdrop.style.opacity = '';
+      if (dy > panel.offsetHeight * 0.28 || velocity > 0.55) close();
+    }
+    handles.forEach(function (el) {
+      el.addEventListener('pointerdown', onDown);
+      el.addEventListener('pointermove', onMove);
+      el.addEventListener('pointerup', onUp);
+      el.addEventListener('pointercancel', onUp);
+    });
+  }
+
   // ---------- Folha inferior ----------
   /**
    * openSheet({ title, body: [nós], foot: [nós], onClose })
@@ -38,20 +74,21 @@
       if (closed) return;
       closed = true;
       removeLayer(close);
+      root.classList.remove('is-dragging');
       root.classList.remove('is-open');
-      setTimeout(function () { root.remove(); }, 220);
+      setTimeout(function () { root.remove(); }, 420);
       if (opts.onClose) opts.onClose();
     }
 
-    var panel = h('div', { class: 'sheet__panel', role: 'dialog', 'aria-modal': 'true', 'aria-label': opts.title }, [
-      h('div', { class: 'sheet__grab' }),
-      h('div', { class: 'sheet__head' }, [
-        h('h2', { class: 'sheet__title', text: opts.title }),
-        h('button', { class: 'sheet__close', 'aria-label': 'Fechar', onclick: close }, [icon('close')])
-      ]),
-      body, foot
+    var grabZone = h('div', { class: 'sheet__grab-zone' }, [h('div', { class: 'sheet__grab' })]);
+    var head = h('div', { class: 'sheet__head' }, [
+      h('h2', { class: 'sheet__title', text: opts.title }),
+      h('button', { class: 'sheet__close', 'aria-label': 'Fechar', onclick: close }, [icon('close')])
     ]);
-    root = h('div', { class: 'sheet' }, [h('div', { class: 'sheet__backdrop', onclick: close }), panel]);
+    var panel = h('div', { class: 'sheet__panel', role: 'dialog', 'aria-modal': 'true', 'aria-label': opts.title }, [grabZone, head, body, foot]);
+    var backdrop = h('div', { class: 'sheet__backdrop', onclick: close });
+    root = h('div', { class: 'sheet' }, [backdrop, panel]);
+    enableDragToClose(root, panel, backdrop, [grabZone, head], close);
 
     function setBody(nodes) { App.dom.append(App.dom.clear(body), nodes); }
     function setFoot(nodes) {
@@ -89,7 +126,7 @@
       ]);
       document.body.appendChild(root);
       pushLayer(cancel);
-      ok.focus();
+      ok.focus({ preventScroll: true });
     });
   }
 
@@ -102,7 +139,7 @@
     if (toastEl) toastEl.remove();
     clearTimeout(toastTimer);
     var el = h('div', { class: 'toast' + (opts.tone === 'error' ? ' toast--error' : ''), role: 'status', 'aria-live': 'polite' }, [
-      opts.tone ? h('span', { class: 'toast__icon' }, [icon(opts.tone === 'error' ? 'alert' : 'check')]) : null,
+      opts.tone ? h('span', { class: 'toast__icon' }, [icon(opts.tone === 'error' ? 'close' : 'check')]) : null,
       h('span', { class: 'toast__text', text: message }),
       opts.action ? h('button', {
         class: 'toast__action', text: opts.action.label,
@@ -119,7 +156,7 @@
     toastTimer = setTimeout(hide, opts.action ? 5000 : 2600);
   }
 
-  function vibrate() { if (navigator.vibrate) navigator.vibrate(12); }
+  function vibrate(ms) { if (navigator.vibrate) navigator.vibrate(ms || 12); }
 
   App.ui = { openSheet: openSheet, confirm: confirmDialog, toast: toast, vibrate: vibrate, closeTop: closeTop, hasOpen: hasOpen };
 })(window.App = window.App || {});

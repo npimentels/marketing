@@ -6,8 +6,11 @@
   'use strict';
   var D = App.dates, domain = App.domain;
 
-  var RED = [0.784, 0.063, 0.18];
-  var GREEN = [0.12, 0.48, 0.3];
+  // mesmas cores do app (css/tokens.css)
+  var TEAL = [0.118, 0.302, 0.361];
+  var ORANGE = [0.957, 0.643, 0.263];
+  var RED = [0.878, 0.325, 0.239];
+  var GREEN = [0.18, 0.604, 0.42];
   var MUTED = 0.4;
   var M = 40;            // margem
   var FS = 8.5, LH = 11, PAD = 5;
@@ -39,9 +42,10 @@
         y += 26;
         return;
       }
-      pdf.rect(M, y, W, 4, { fill: 0 });
+      pdf.rect(M, y, W, 4, { fill: TEAL });
+      pdf.rect(M, y, 60, 4, { fill: ORANGE });
       y += 26;
-      pdf.text(M, y, 'Relatório de Movimentação de Chaves', { size: 18, bold: true });
+      pdf.text(M, y, 'Relatório de Movimentação de Chaves', { size: 18, bold: true, color: TEAL });
       y += 18;
       if (place) { pdf.text(M, y, place, { size: 11 }); y += 15; }
       pdf.text(M, y, D.longDate(day), { size: 11, bold: true });
@@ -69,7 +73,7 @@
       var gap = 8, bw = (W - gap * (items.length - 1)) / items.length, bh = 46;
       items.forEach(function (it, i) {
         var x = M + i * (bw + gap), dark = it[2] === 'dark';
-        if (dark) pdf.rect(x, y, bw, bh, { fill: 0 });
+        if (dark) pdf.rect(x, y, bw, bh, { fill: TEAL });
         else pdf.rect(x, y, bw, bh, { stroke: it[2] === 'alert' ? RED : 0.8, width: 0.8 });
         pdf.text(x + bw / 2, y + 24, String(it[1]), { size: 18, bold: true, align: 'center', color: dark ? 1 : it[2] === 'alert' ? RED : 0 });
         pdf.text(x + bw / 2, y + 38, it[0], { size: 7.5, align: 'center', color: dark ? 1 : 0.3, maxWidth: bw - 6 });
@@ -79,7 +83,7 @@
 
     // ---------- Tabela ----------
     function tableHead() {
-      pdf.rect(M, y, W, 18, { fill: 0 });
+      pdf.rect(M, y, W, 18, { fill: TEAL });
       var x = M;
       COLS.forEach(function (c) { pdf.text(x + PAD, y + 12, c.title, { size: 8, bold: true, color: 1 }); x += c.w; });
       y += 18;
@@ -111,7 +115,7 @@
       var s = 7;
       if (kind === 'devolvida') pdf.rect(x, top, s, s, { fill: GREEN });
       else if (kind === 'atrasada') pdf.rect(x, top, s, s, { fill: RED });
-      else pdf.rect(x, top, s, s, { stroke: 0, width: 0.8 });
+      else pdf.rect(x, top, s, s, { fill: ORANGE });
     }
 
     function table(items, withDate) {

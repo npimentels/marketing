@@ -1,26 +1,92 @@
-/* Tela Relatório — resumo do dia e geração do PDF */
+/* =========================================================
+   Tela Relatório — agenda do dia (calendário + linha do tempo)
+   e geração do PDF.
+   ========================================================= */
 (function (App) {
   'use strict';
   var h = App.dom.h, icon = App.dom.icon, D = App.dates;
-  var store = App.store, domain = App.domain, c = App.ui.c, platform = App.platform;
+  var store = App.store, domain = App.domain, c = App.ui.c, platform = App.platform, motion = App.motion;
 
-  function previewRows(list, now) {
-    return h('div', { class: 'card' }, [h('div', { class: 'list-rows' }, list.map(function (m) {
-      var st = domain.status(m, now);
-      return h('div', { class: 'list-row', role: 'button', tabindex: '0', onclick: function () { App.sheets.movement(m.id); } }, [
-        h('span', { class: 'list-row__time', text: D.hm(m.createdAt) }),
-        h('div', { class: 'list-row__main' }, [
-          h('div', { class: 'list-row__title', text: m.name }),
-          h('div', { class: 'list-row__sub', text: m.keys.join(', ') })
-        ]),
-        c.statusBadge(m, now)
-      ]);
-    }))]);
+  var WEEKDAYS = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
+
+  function monthOf(day) { return day.slice(0, 7); }
+  function shiftMonth(month, n) {
+    var d = new Date(+month.slice(0, 4), +month.slice(5, 7) - 1 + n, 1);
+    return d.getFullYear() + '-' + D.pad(d.getMonth() + 1);
   }
+  function monthLabel(month) { return D.monthLabel(+month.slice(0, 4), +month.slice(5, 7) - 1); }
+
+  /** Cartão azul com mês, faixa de dias e botões do PDF */
+  function planner(view, ctx, onPdf, onShare) {
+    var today = D.today(), month = view.reportMonth;
+    var daysWithItems = {};
+    store.state.movs.forEach(function (m) { daysWithItems[D.dayKey(m.createdAt)] = true; });
+
+    var strip = h('div', { class: 'day-strip no-scrollbar' });
+    var first = new Date(+month.slice(0, 4), +month.slice(5, 7) - 1, 1);
+    var activeEl = null;
+    for (var d = new Date(first); d.getMonth() === first.getMonth(); d.setDate(d.getDate() + 1)) {
+      var key = D.dayKey(d);
+      if (key > today) break;
+      var btn = h('button', {
+        class: 'day' + (key === view.date ? ' is-active' : '') + (daysWithItems[key] ? ' has-items' : ''), type: 'button',
+        'aria-label': D.longDate(key), 'aria-pressed': key === view.date ? 'true' : 'false',
+        onclick: (function (k) { return function () { view.date = k; ctx.rerender('swap'); }; })(key)
+      }, [WEEKDAYS[d.getDay()], h('span', { class: 'day__num', text: String(d.getDate()) }), h('span', { class: 'day__dot' })]);
+      if (key === view.date) activeEl = btn;
+      strip.appendChild(btn);
+    }
+    requestAnimationFrame(function () {
+      var target = activeEl || strip.lastChild;
+      if (target) strip.scrollLeft = target.offsetLeft - strip.clientWidth / 2 + target.offsetWidth / 2;
+    });
+
+    var isCurrent = month >= monthOf(today);
+    return h('section', { class: 'planner' }, [
+      h('div', { class: 'planner__month' }, [
+        c.iconButton('chevronLeft', 'Mês anterior', function () { view.reportMonth = shiftMonth(month, -1); ctx.rerender('swap'); }, 'on-dark'),
+        h('span', { class: 'planner__month-label', text: monthLabel(month) }),
+        h('button', {
+          class: 'icon-btn icon-btn--on-dark', type: 'button', 'aria-label': 'Próximo mês', disabled: isCurrent,
+          onclick: function () { view.reportMonth = shiftMonth(month, 1); ctx.rerender('swap'); }
+        }, [icon('chevronRight')])
+      ]),
+      strip,
+      h('div', { class: 'btn-row' }, [
+        h('button', { class: 'btn btn--accent', type: 'button', onclick: onPdf }, [icon('download'), 'Baixar PDF']),
+        h('button', { class: 'btn btn--on-dark', type: 'button', onclick: onShare }, [icon('share'), 'Compartilhar'])
+      ])
+    ]);
+  }
+
+  /** Linha do tempo das retiradas do dia, com a marca "agora" */
+  function agenda(list, day, now) {
+    var cells = [];
+    var nowPlaced = day !== D.today();
+    var nowIso = now.toISOString();
+    list.forEach(function (m) {
+      if (!nowPlaced && m.createdAt > nowIso) { cells.push(nowLine(now)); nowPlaced = true; }
+      var st = domain.status(m, now);
+      cells.push(h('span', { class: 'agenda__time', text: D.hm(m.createdAt) }));
+      cells.push(h('div', { class: 'agenda__item' }, [h('button', {
+        class: 'agenda-card' + (st === 'devolvida' ? ' is-done' : st === 'atrasada' ? ' is-late' : ''), type: 'button',
+        'data-flip': 'ag-' + m.id, onclick: function () { App.sheets.movement(m.id); }
+      }, [
+        h('div', { class: 'agenda-card__title', text: m.name }),
+        h('div', { class: 'agenda-card__sub', text: (m.role ? m.role + ' · ' : '') + c.statusText(m, now) }),
+        c.keyTags(m)
+      ])]));
+    });
+    if (!nowPlaced) cells.push(nowLine(now));
+    return h('div', { class: 'agenda' }, cells);
+  }
+
+  function nowLine(now) { return h('div', { class: 'agenda__now', text: 'agora · ' + D.hm(now) }); }
 
   function render(root, ctx) {
     var view = ctx.view, state = store.state, now = new Date();
     var day = view.date;
+    if (!view.reportMonth) view.reportMonth = monthOf(day);
     var stats = domain.dayStats(state.movs, day, now);
     var list = domain.createdOn(state.movs, day).reverse();
 
@@ -31,36 +97,37 @@
     var olderCheck = h('input', { type: 'checkbox', checked: view.reportOlder, onchange: function (e) { view.reportOlder = e.target.checked; } });
 
     function build() {
-      if (respInput.value.trim() !== state.settings.resp) store.updateSettings({ resp: respInput.value.trim() });
-      return App.report.daily(store.state, { day: day, resp: respInput.value.trim(), includeOlder: view.reportOlder });
+      var resp = respInput.value.trim();
+      if (resp !== state.settings.resp) store.updateSettings({ resp: resp });
+      return App.report.daily(store.state, { day: day, resp: resp, includeOlder: view.reportOlder });
     }
 
-    App.dom.append(root, [
-      c.header('PDF do dia', 'Relatório', c.datePill(day, function (d) { view.date = d; ctx.rerender(); })),
-      h('div', { class: 'stack stack--lg' }, [
-        h('section', { class: 'card stack' }, [
-          h('div', null, [h('h2', { class: 'card__title', text: D.longDate(day) }), h('p', { class: 'card__text', text: 'Resumo das retiradas feitas neste dia.' })]),
-          h('div', { class: 'stats stats--2' }, [
-            c.stat(stats.checkouts, stats.checkouts === 1 ? 'Retirada' : 'Retiradas', 'dark'),
-            c.stat(stats.keys, 'Chaves retiradas'),
-            c.stat(stats.returned, 'Chaves devolvidas'),
-            c.stat(stats.use + stats.late, stats.late ? 'Em aberto (' + stats.late + ' atrasadas)' : 'Em aberto', stats.late ? 'alert' : null)
-          ])
-        ]),
-        h('section', { class: 'card stack' }, [
-          c.field('Responsável pelo turno', respInput, 'Aparece no PDF, junto da assinatura.'),
-          h('label', { class: 'check' }, [olderCheck, 'Incluir chaves ainda em aberto de dias anteriores']),
-          h('div', { class: 'btn-row' }, [
-            h('button', { class: 'btn btn--primary', type: 'button', onclick: function () { var r = build(); platform.saveFile(r.bytes, r.name, 'application/pdf'); } }, [icon('download'), 'Baixar PDF']),
-            h('button', { class: 'btn btn--outline', type: 'button', onclick: function () { var r = build(); platform.shareFile(r.bytes, r.name, 'application/pdf', 'Relatório de chaves'); } }, [icon('share'), 'Compartilhar'])
-          ])
-        ]),
-        c.sectionHead('Retiradas do dia', list.length ? list.length + ' no total' : ''),
-        list.length ? previewRows(list, now) : c.emptyState({ icon: 'report', title: 'Nenhuma retirada neste dia', text: 'O PDF sai mesmo assim, com as chaves fora do quadro.' })
+    var blocks = [
+      planner(view, ctx,
+        function () { var r = build(); platform.saveFile(r.bytes, r.name, 'application/pdf'); },
+        function () { var r = build(); platform.shareFile(r.bytes, r.name, 'application/pdf', 'Relatório de chaves'); }),
+      c.sectionHead(D.mediumDate(day), list.length ? list.length + (list.length === 1 ? ' retirada' : ' retiradas') : ''),
+      h('div', { class: 'stats' }, [
+        c.stat(stats.keys, 'Chaves retiradas', 'peach', 'rep-keys-' + day, ctx.mode === 'nav'),
+        c.stat(stats.returned, 'Devolvidas', null, 'rep-ret-' + day, ctx.mode === 'nav'),
+        c.stat(stats.use + stats.late, stats.late ? stats.late + ' atrasadas' : 'Em aberto', stats.late ? 'late' : null, 'rep-open-' + day, ctx.mode === 'nav')
+      ]),
+      list.length ? agenda(list, day, now)
+        : c.emptyState({ icon: 'report', title: 'Nenhuma retirada neste dia', text: 'O PDF sai mesmo assim, com as chaves que estão fora do quadro.' }),
+      h('section', { class: 'card stack' }, [
+        h('h2', { class: 'card__title', text: 'Opções do PDF' }),
+        c.field('Responsável pelo turno', respInput, 'Aparece no PDF, junto da assinatura.'),
+        h('label', { class: 'check' }, [olderCheck, 'Incluir chaves ainda em aberto de dias anteriores'])
       ])
+    ];
+
+    App.dom.append(root, [
+      c.header('PDF e histórico', 'Relatório', 'diário'),
+      h('div', { class: 'stack stack--lg' }, blocks)
     ]);
+    if (ctx.mode !== 'update') motion.stagger(ctx.mode === 'nav' ? blocks : blocks.slice(1), 'anim-rise');
   }
 
   App.screens = App.screens || {};
-  App.screens.report = { render: render, hasCta: false };
+  App.screens.report = { render: render };
 })(window.App = window.App || {});

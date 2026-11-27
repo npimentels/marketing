@@ -14,7 +14,7 @@
         title = 'Devolução'; dot = 'ok';
         text = (e.keys || []).join(', ') + ' · ' + text;
       } else if (e.type === 'late') {
-        title = 'Marcada como atrasada'; dot = 'alert';
+        title = 'Marcada como atrasada'; dot = 'late';
       } else {
         title = 'Atraso removido'; dot = 'muted';
       }
@@ -54,23 +54,23 @@
       }
 
       sheet.setBody([
-        h('div', { class: 'person' }, [
+        h('div', { class: 'holder-card' + (st === 'atrasada' ? ' is-late' : '') }, [h('div', { class: 'person' }, [
           c.avatar(m, 'lg'),
           h('div', { class: 'grow' }, [
             h('div', { class: 'person__name', text: m.name }),
             h('div', { class: 'person__sub', text: m.role || 'Retirou ' + D.when(m.createdAt) })
           ]),
           c.statusBadge(m)
-        ]),
-        h('section', { class: 'stack' }, [
+        ]), h('span', { class: 'field__hint', text: c.statusText(m) + ' · retirou ' + D.when(m.createdAt) })]),
+        h('section', { class: 'step' }, [
           h('div', { class: 'step-title' }, [
-            h('span', { class: 'field__label', text: 'Chaves (' + m.keys.length + ')' }),
+            h('span', { class: 'step-title__label', text: 'Chaves (' + m.keys.length + ')' }),
             open.length > 1 ? h('span', { class: 'field__hint', text: 'Toque para escolher quais devolver' }) : null
           ]),
           keysBlock
         ]),
-        m.notes ? h('section', { class: 'stack' }, [h('span', { class: 'field__label', text: 'Observação' }), h('p', { class: 'note-box', text: m.notes })]) : null,
-        h('section', { class: 'stack' }, [h('span', { class: 'field__label', text: 'Histórico' }), timeline(m)]),
+        m.notes ? h('section', { class: 'step' }, [h('span', { class: 'step-title__label', text: 'Observação' }), h('p', { class: 'note-box', text: m.notes })]) : null,
+        h('section', { class: 'step' }, [h('span', { class: 'step-title__label', text: 'Histórico' }), timeline(m)]),
         h('div', { class: 'btn-row btn-row--wrap' }, [
           h('button', { class: 'btn btn--outline btn--sm', type: 'button', onclick: function () { sheet.close(); App.sheets.checkout({ id: m.id }); } }, [icon('edit'), 'Editar']),
           st !== 'devolvida' ? h('button', {
@@ -89,7 +89,7 @@
         : n === open.length ? (n === 1 ? 'Devolver chave ' + chosen[0] : 'Devolver todas (' + n + ')')
         : 'Devolver ' + n + ' de ' + open.length + ' chaves';
       sheet.setFoot([h('button', {
-        class: 'btn btn--primary btn--lg btn--block', type: 'button', text: label, disabled: n === 0,
+        class: 'btn btn--accent btn--lg btn--block', type: 'button', text: label, disabled: n === 0,
         onclick: function () { actions.returnKeys(m, chosen.slice()); sheet.close(); }
       })]);
     }

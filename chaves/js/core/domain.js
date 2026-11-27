@@ -127,11 +127,21 @@
     });
   }
 
-  function generateFloors(from, to, perFloor) {
+  /**
+   * Numeração: andar + nº do apto. Até 9 aptos por andar usa 1 dígito
+   * (1º andar: 11–18 · 10º: 101–108 · 16º: 161–168); com 10 ou mais, 2 dígitos (101–112).
+   * scheme 'hundreds' força o formato antigo (andar x 100), usado só na migração.
+   */
+  function keyNumber(floor, apt, perFloor, scheme) {
+    var base = scheme === 'hundreds' || perFloor > 9 ? 100 : 10;
+    return String(floor * base + apt);
+  }
+
+  function generateFloors(from, to, perFloor, scheme) {
     var floors = [];
     for (var f = from; f <= to; f++) {
       var keys = [];
-      for (var a = 1; a <= perFloor; a++) keys.push(String(f * 100 + a));
+      for (var a = 1; a <= perFloor; a++) keys.push(keyNumber(f, a, perFloor, scheme));
       floors.push({ label: f === 0 ? 'Térreo' : f + 'º andar', keys: keys });
     }
     return floors;
@@ -191,7 +201,7 @@
     createdOn: createdOn, activityOn: activityOn, openBefore: openBefore,
     keyHolders: keyHolders, keyHistory: keyHistory, boardCounts: boardCounts, dayStats: dayStats,
     allKeys: allKeys, floorIndexOf: floorIndexOf, sortKeys: sortKeys,
-    generateFloors: generateFloors, floorsToText: floorsToText, textToFloors: textToFloors,
+    keyNumber: keyNumber, generateFloors: generateFloors, floorsToText: floorsToText, textToFloors: textToFloors,
     norm: norm, initials: initials, firstName: firstName, matches: matches, knownPeople: knownPeople
   };
 })(window.App = window.App || {});

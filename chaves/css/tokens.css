@@ -1,42 +1,55 @@
 /* =========================================================
    Tokens de tema — o ÚNICO lugar com valores de cor, fonte,
-   espaçamento e raio. Os outros arquivos usam só var(--...).
+   espaçamento, raio, sombra e movimento.
+   Paleta: azul-petróleo + laranja + pêssego.
    ========================================================= */
 :root {
-  /* Cores */
-  --c-bg: #F6F6F4;
+  /* Cores base */
+  --c-bg: #F4F6F6;
   --c-surface: #FFFFFF;
-  --c-surface-2: #F0F0ED;
-  --c-text: #111111;
-  --c-muted: #6B6B6B;
-  --c-subtle: #9A9A96;
-  --c-line: #E4E4E0;
-  --c-line-strong: #CFCFCB;
-  --c-primary: #111111;
-  --c-primary-pressed: #2B2B2B;
+  --c-surface-2: #EEF2F3;
+  --c-text: #183B46;
+  --c-muted: #6F8389;
+  --c-subtle: #A3B2B6;
+  --c-line: #E3E9EB;
+  --c-line-strong: #CCD7DA;
+
+  /* Marca */
+  --c-primary: #1E4D5C;          /* azul-petróleo */
+  --c-primary-pressed: #163C48;
+  --c-primary-soft: #E4EEF0;
   --c-on-primary: #FFFFFF;
-  --c-on-primary-muted: #B5B5B5;
-  --c-alert: #C8102E;
-  --c-alert-soft: #FDECEE;
-  --c-on-alert-muted: #FFD5DB;
-  --c-ok: #1F7A4D;
-  --c-ok-soft: #E7F3EC;
-  --c-ok-on-dark: #9FE3BD;
-  --c-backdrop: rgba(0, 0, 0, .45);
+  --c-on-primary-muted: #A9C3CA;
+  --c-accent: #F4A443;           /* laranja */
+  --c-accent-pressed: #E58F27;
+  --c-accent-ring: rgba(244, 164, 67, .28);
+  --c-on-accent: #FFFFFF;
+  --c-peach: #FFEEDD;            /* cartões "em uso" */
+  --c-peach-strong: #FFE0C2;
+  --c-peach-text: #A35F14;
+
+  /* Estados */
+  --c-late: #E0533D;
+  --c-late-soft: #FDE7E2;
+  --c-on-late-muted: #FFD3CA;
+  --c-ok: #2E9A6B;
+  --c-ok-soft: #E2F3EB;
+  --c-backdrop: rgba(17, 41, 49, .42);
 
   /* Tipografia */
-  --font: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font: "Poppins", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
   --fs-2xs: 11px;
   --fs-xs: 12px;
   --fs-sm: 14px;
   --fs-md: 16px;
   --fs-lg: 20px;
-  --fs-xl: 28px;
+  --fs-xl: 26px;
+  --fs-2xl: 34px;
   --fw-regular: 400;
+  --fw-medium: 500;
   --fw-semibold: 600;
   --fw-bold: 700;
   --fw-heavy: 800;
-  --tracking-caps: .08em;
 
   /* Espaçamento (múltiplos de 4) */
   --sp-1: 4px;
@@ -48,31 +61,36 @@
   --sp-8: 32px;
 
   /* Raios */
-  --r-sm: 8px;
-  --r-md: 12px;
-  --r-lg: 18px;
-  --r-xl: 24px;
+  --r-sm: 10px;
+  --r-md: 14px;
+  --r-lg: 22px;
+  --r-xl: 28px;
   --r-pill: 999px;
 
   /* Sombras */
-  --shadow-1: 0 1px 2px rgba(0, 0, 0, .04);
-  --shadow-2: 0 10px 24px rgba(0, 0, 0, .22);
+  --shadow-1: 0 2px 10px rgba(30, 77, 92, .06);
+  --shadow-2: 0 10px 30px rgba(30, 77, 92, .12);
+  --shadow-accent: 0 8px 22px rgba(244, 164, 67, .45);
 
   /* Medidas */
   --touch: 44px;
   --content-max: 640px;
-  --tabbar-h: 64px;
-  --cta-h: 56px;
+  --tabbar-h: 72px;
+  --fab: 60px;
   --safe-t: env(safe-area-inset-top, 0px);
   --safe-b: env(safe-area-inset-bottom, 0px);
 
   /* Movimento */
-  --t-fast: .15s ease-out;
-  --t-sheet: .22s cubic-bezier(.2, .8, .2, 1);
+  --ease-out: cubic-bezier(.22, 1, .36, 1);
+  --ease-spring: cubic-bezier(.34, 1.56, .64, 1);
+  --ease-sheet: cubic-bezier(.32, .72, 0, 1);
+  --d-fast: .16s;
+  --d-med: .32s;
+  --d-slow: .55s;
 
   /* Camadas */
+  --z-sticky: 5;
   --z-tabbar: 10;
-  --z-cta: 11;
   --z-sheet: 40;
   --z-dialog: 50;
   --z-toast: 60;

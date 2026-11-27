@@ -72,6 +72,7 @@
     function tryAdd(k) {
       if (holders[k]) {
         ui.toast('Chave ' + k + ' está com ' + holders[k].name, { tone: 'error' });
+        App.motion.shake(quickInput);
         return false;
       }
       if (selected.indexOf(k) < 0) selected.push(k);
@@ -82,9 +83,11 @@
       var k = quickInput.value.trim();
       if (!k) return;
       var idx = domain.floorIndexOf(k, floors);
-      if (idx < 0) { ui.toast('Chave ' + k + ' não existe na lista', { tone: 'error' }); return; }
+      if (idx < 0) { ui.toast('Chave ' + k + ' não existe na lista', { tone: 'error' }); App.motion.shake(quickInput); return; }
       if (tryAdd(k)) { floorIdx = idx; quickInput.value = ''; renderKeys(); }
     }
+
+    var lastFloorShown = -1;
 
     function renderKeys() {
       var sortedSel = domain.sortKeys(selected, floors);
@@ -104,7 +107,7 @@
       floors.forEach(function (f, i) {
         var inFloor = f.keys.filter(function (k) { return selected.indexOf(k) >= 0; }).length;
         floorTabs.appendChild(c.chip(shortFloorLabel(f.label), {
-          small: true, active: i === floorIdx, dot: inFloor > 0 && i !== floorIdx,
+          small: true, accent: true, active: i === floorIdx, dot: inFloor > 0 && i !== floorIdx,
           onClick: function () { floorIdx = i; renderKeys(); }
         }));
       });
@@ -138,10 +141,11 @@
           var st = holder ? 'busy' : selected.indexOf(k) >= 0 ? 'selected' : 'free';
           grid.appendChild(c.keyTile(k, st, holder ? 'com ' + domain.firstName(holder.name) : '', function () {
             if (holder) ui.toast('Chave ' + k + ' está com ' + holder.name, { tone: 'error' });
-            else toggleKey(k);
+            else { toggleKey(k); App.ui.vibrate(6); }
           }));
         });
       }
+      if (lastFloorShown !== floorIdx) { App.motion.stagger([].slice.call(grid.children), 'anim-pop'); lastFloorShown = floorIdx; }
       renderSubmit();
     }
 
@@ -150,7 +154,7 @@
     notesInput.value = editing ? editing.notes : '';
 
     // ---------- Botão de confirmar ----------
-    var submit = h('button', { class: 'btn btn--primary btn--lg btn--block', type: 'button', onclick: save });
+    var submit = h('button', { class: 'btn btn--accent btn--lg btn--block', type: 'button', onclick: save });
 
     function renderSubmit() {
       var n = selected.length, hasName = !!nameInput.value.trim();
@@ -175,18 +179,18 @@
     var sheet = ui.openSheet({
       title: editing ? 'Editar retirada' : 'Nova retirada',
       body: [
-        h('section', { class: 'stack' }, [
-          h('span', { class: 'field__label', text: '1 · Quem está pegando' }),
+        h('section', { class: 'step' }, [
+          c.stepTitle(1, 'Quem está pegando'),
           nameInput, suggestionsBox, roleInput
         ]),
-        h('section', { class: 'stack' }, [
-          h('div', { class: 'step-title' }, [h('span', { class: 'field__label', text: '2 · Chaves' }), countEl]),
+        h('section', { class: 'step' }, [
+          c.stepTitle(2, 'Quais chaves', countEl),
           selectedBox, floorTabs, floorHead, grid,
           h('div', { class: 'row' }, [h('div', { class: 'grow' }, [quickInput]),
             h('button', { class: 'btn btn--secondary', type: 'button', text: 'Adicionar', onclick: addTyped })])
         ]),
-        h('section', { class: 'stack' }, [
-          h('span', { class: 'field__label', text: '3 · Observação (opcional)' }), notesInput
+        h('section', { class: 'step' }, [
+          c.stepTitle(3, 'Observação (opcional)'), notesInput
         ])
       ],
       foot: [submit]

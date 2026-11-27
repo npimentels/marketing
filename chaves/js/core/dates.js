@@ -28,6 +28,18 @@
     return capitalize(parseDay(day).toLocaleDateString('pt-BR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }));
   }
 
+  /** "Sexta, 27 de novembro" */
+  function mediumDate(day) {
+    var d = parseDay(day);
+    var weekday = capitalize(d.toLocaleDateString('pt-BR', { weekday: 'long' }).replace('-feira', ''));
+    return weekday + ', ' + d.toLocaleDateString('pt-BR', { day: 'numeric', month: 'long' });
+  }
+
+  /** "Novembro de 2026" */
+  function monthLabel(year, monthIndex) {
+    return capitalize(new Date(year, monthIndex, 1).toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' }));
+  }
+
   /** "Hoje, 26 nov" · "Ontem, 25 nov" · "Ter, 24 nov" */
   function shortDate(day) {
     var d = parseDay(day), t = today();
@@ -59,6 +71,6 @@
 
   App.dates = {
     pad: pad, dayKey: dayKey, today: today, parseDay: parseDay, shiftDay: shiftDay, daysBetween: daysBetween,
-    hm: hm, dm: dm, dmy: dmy, dmyhm: dmyhm, longDate: longDate, shortDate: shortDate, when: when, elapsed: elapsed
+    hm: hm, dm: dm, dmy: dmy, dmyhm: dmyhm, longDate: longDate, mediumDate: mediumDate, monthLabel: monthLabel, shortDate: shortDate, when: when, elapsed: elapsed
   };
 })(window.App = window.App || {});

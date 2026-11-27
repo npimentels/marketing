@@ -1,10 +1,10 @@
 // Cache para funcionar offline. Aumente a versão ao publicar mudanças.
-var CACHE = 'chaves-v3';
+var CACHE = 'chaves-v5';
 var FILES = [
   './', 'index.html', 'manifest.webmanifest',
-  'css/tokens.css', 'css/base.css', 'css/layout.css', 'css/components.css',
+  'css/fonts.css', 'css/tokens.css', 'css/base.css', 'css/layout.css', 'css/components.css', 'css/motion.css',
   'js/core/dates.js', 'js/core/domain.js', 'js/core/storage.js', 'js/core/store.js',
-  'js/ui/dom.js', 'js/ui/overlays.js', 'js/ui/components.js',
+  'js/ui/dom.js', 'js/ui/overlays.js', 'js/ui/motion.js', 'js/ui/components.js',
   'js/report/pdf-writer.js', 'js/report/daily-report.js', 'js/platform.js', 'js/actions.js',
   'js/sheets/checkout.js', 'js/sheets/movement.js', 'js/sheets/key.js',
   'js/screens/home.js', 'js/screens/board.js', 'js/screens/report.js', 'js/screens/settings.js',
